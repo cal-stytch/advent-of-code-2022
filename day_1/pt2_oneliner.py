@@ -1,0 +1,2 @@
+# Did this after the fact just to remind myself some python tricks for later days
+print(sum(sorted(list(map(lambda i: sum(i), list(map(lambda s: list(map(lambda n: int(n), s.split())), open('input.txt').read().split('\n\n'))))))[-3:]))
