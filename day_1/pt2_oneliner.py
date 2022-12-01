@@ -5,3 +5,6 @@
 
 # v2    
 print(sum(sorted([sum([int(s) for s in t.split()]) for t in open('i').read().split('\n\n')])[-3:]))
+
+# Tip from JK
+# print(sum(sorted([sum(map(int,t.split())) for t in open('i').read().split('\n\n')])[-3:]))
