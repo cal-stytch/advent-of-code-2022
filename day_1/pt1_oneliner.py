@@ -1,0 +1,1 @@
+print(sorted([sum([int(s) for s in t.split()]) for t in open('i').read().split('\n\n')])[-1])
