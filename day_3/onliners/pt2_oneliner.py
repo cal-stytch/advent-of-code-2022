@@ -1,0 +1,1 @@
+(r:=list(map(set,open('i').read().split())),print(sum([(ord(g)-ord('A')+27 if ord(g)>=ord('A') and ord(g)<=ord('Z') else ord(g)-ord('a')+1)for g in [(r[i]&r[i+1]&r[i+2]).pop() for i in range(0,len(r),3)]])))

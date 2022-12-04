@@ -25,8 +25,3 @@ groups.append(overlap)
     
 total = sum([score_char(list(g)[0]) for g in groups])
 print(total)
-
-# Later updates for learning (able to fully replace for-loop)
-f = [raw_sacks[i].intersection(raw_sacks[i+1]).intersection(raw_sacks[i+2]) for i in range(0, len(raw_sacks), 3)]
-total_new = sum([score_char(list(g)[0]) for g in f]) 
-print(total_new)
