@@ -128,18 +128,31 @@ for c in commands:
 
 # CD to root and recursively search through directories
 fs.cd('/')
-MAX_VALUE = 100000
-def search_dir(dir:Directory):
-    val = 0
+TOTAL_DISK_SPACE = 70000000
+UPDATE_SPACE_REQ = 30000000
 
-    if dir.get_size() <= MAX_VALUE:
-        val += dir.get_size()
+used_space = fs.curr.get_size()
+unused_space = TOTAL_DISK_SPACE - used_space
+req_to_delete = UPDATE_SPACE_REQ - unused_space
+
+def get_best_dir(dir:Directory, curr_best_dir):
+
+    
+
+    best_dir = curr_best_dir
+    if dir.get_size() >= req_to_delete and dir.get_size() < curr_best_dir.get_size():
+        best_dir = dir
 
     for c in dir.contents:
         if isinstance(c, Directory):
-            val += search_dir(c) 
+            if get_best_dir(c, best_dir).get_size() < best_dir.get_size():
+
+                best_dir = get_best_dir(c, curr_best_dir)
+
     
-    return val
+    return best_dir
 
+bd = get_best_dir(fs.root, fs.root)
 
-print(search_dir(fs.curr))
+print(f'NEED TO DETELE AT LEAST: {req_to_delete}')
+print(f'DELETING {bd.name} with size {bd.get_size()}')
