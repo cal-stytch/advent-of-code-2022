@@ -1,60 +1,94 @@
-contents = open('input.txt').read().split('\n')
-moves = [[x.split()[0], int(x.split()[1])] for x in contents]
+from collections import namedtuple
+fn = 'input.txt'
+# fn = 'test.txt'
+contents = open(fn).read().split('\n')
 
-SEGMENTS = 10 
-LAST = 9
-rope = [(0,0) for r in range(SEGMENTS)]
-tail_locations = set()
-tail_locations.add(rope[LAST])
-t_all = []
-t_all.append(rope[LAST])
-def update_segment(new_head, curr_tail):
-    if (abs(new_head[0] - curr_tail[0]) <= 1 and
-        abs(new_head[1] - curr_tail[1]) <= 1):
-        return curr_tail
-    
-    x = curr_tail[0]
-    y = curr_tail[1]
-    if abs(new_head[0] - curr_tail[0]) == 2:
-        x = curr_tail[0] + ((new_head[0] - curr_tail[0])//2) 
-        if abs(new_head[1] - curr_tail[1]) > 0:
-            y = curr_tail[1] + ((new_head[1] - curr_tail[1]))
-    
-    elif abs(new_head[1] - curr_tail[1]) == 2:
-        y = curr_tail[1] + ((new_head[1] - curr_tail[1])//2) 
-        if abs(new_head[0] - curr_tail[0]) > 0:
-            x = curr_tail[0] + ((new_head[0] - curr_tail[0]))
+Move = namedtuple('MOVE', ['dir', 'val'])
 
-    return (x,y)
+moves = [Move(x.split()[0],int(x.split()[1])) for x in contents]
 
-def perform_move(move, rope):
-    # print('----------------')
-    # print(tail_locations)
-    for i in range(move[1]):
-        if (move[0] == 'U'):
-            rope[0] = (rope[0][0], rope[0][1] + 1)
-        elif (move[0] == 'D'):
-            rope[0] = (rope[0][0], rope[0][1] - 1)
-        elif (move[0] == 'L'):
-            rope[0] = (rope[0][0] - 1, rope[0][1])
-        elif (move[0] == 'R'):
-            rope[0] = (rope[0][0] + 1, rope[0][1])
-    
-        for j in range(1, len(rope)):
-            rope[j] = update_segment(rope[j-1], rope[j])
-            if j == LAST:
-                tail_locations.add(rope[LAST])
-                if rope[LAST] != t_all[-1]:
-                    t_all.append(rope[LAST])
+KNOTS = 10
+curr_rope = [(0,0) for _ in range(KNOTS)]
+
+def perform_move(move: Move, rope):
+    for _ in range(move.val):
+        rope = perform_submove(move.dir, rope)
     return rope
+
+def perform_submove(direction, rope):
+    # Move the head and then all following knots
+    x = 0
+    y = 0
+    match direction:
+        case 'U':
+            y = 1
+        case 'D':
+            y = -1
+        case 'L':
+            x = -1
+        case 'R':
+            x = 1
+        case _:
+            raise Exception()
+    new_head = (rope[0][0] + x, rope[0][1] + y)
+    rope[0] = new_head
+
+    for i in range(1, KNOTS):
+        ith_knot = adjust_to_parent_move(rope[i], rope[i-1])
+        rope[i] = ith_knot
+
+    last_knot_loc.add(rope[-1])
+    return rope
+
+def adjust_to_parent_move(instance, parent):
+    if abs(instance[0] - parent[0]) <= 1 and abs(instance[1] - parent[1]) <=1:
+        return instance
+
+    # Horizontal movement
+    if (instance[1] == parent[1] and instance[0] != parent[0]):
+        if (instance[0] < parent[0]):
+            return (parent[0] -1, parent[1])
+        else:
+            return (parent[0] +1, parent[1])
+    # Vertical movement
+    if (instance[0] == parent[0] and instance[1] != parent[1]):
+        if (instance[1] < parent[1]):
+            return (parent[0], parent[1]-1)
+        else:
+            return (parent[0], parent[1]+1)
     
-for move in moves:
-    rope = perform_move(move, rope)
+    # Diagonal movement
+    if abs(instance[0] - parent[0]) > abs(instance[1] - parent[1]):
+        if (instance[0] < parent[0]):
+            return (parent[0] - 1, parent[1])
+        else:
+            return (parent[0] + 1, parent[1]) 
+    
+    if abs(instance[0] - parent[0]) < abs(instance[1] - parent[1]):
+        if (instance[1] < parent[1]):
+            return (parent[0], parent[1] - 1)
+        else:
+            return (parent[0], parent[1]+1)
+    
+    # Double diagonal!!!
+    if abs(instance[0] - parent[0]) == abs(instance[1] - parent[1]):
+        if (instance[0] < parent[0] and instance[1] < parent[1]):
+            return (parent[0] - 1, parent[1] - 1)
+        elif (instance[0] > parent[0] and instance[1] < parent[1]):
+            return (parent[0] + 1, parent[1] - 1)
+        elif (instance[0] < parent[0] and instance[1] > parent[1]):
+            return (parent[0] - 1, parent[1] + 1)
+        elif (instance[0] > parent[0] and instance[1] > parent[1]):
+            return (parent[0] + 1, parent[1] + 1)
 
-print(len(tail_locations))
-# print(t_all)
-print(len(set(t_all)))
-print(rope)
 
-for i in range(len(rope)):
-   print((rope[i][0] -9, rope[i][1] +133)) 
+
+    raise Exception(f"self {instance} par {parent}")
+
+    # Return a tuple that moves according to parents new position
+last_knot_loc = set()
+last_knot_loc.add(curr_rope[-1])
+for m in moves:
+    curr_rope = perform_move(m, curr_rope)
+
+print(len(last_knot_loc))
