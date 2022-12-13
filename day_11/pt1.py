@@ -25,7 +25,6 @@ monkeys = [
     Monkey([50, 97, 76, 96, 80, 56], lambda n: n + 3, lambda n: 3 if  n % 13 == 0 else 5 ,0)
 ]
 
-
 ROUNDS = 20
 tracker = [0 for _ in range(len(monkeys))]
 for _ in range(ROUNDS):
@@ -37,15 +36,5 @@ for _ in range(ROUNDS):
            print(new_worry)
            monkeys[monkey.test(new_worry)].items.append(new_worry)
 
-
-
-        # Inspect
-
-        # Relief
-
-        # Test worry level
-
-        # Throw
 tracker.sort()
 print(tracker[-1] * tracker[-2])
-
